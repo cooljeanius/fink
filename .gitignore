@@ -1,10 +1,7 @@
-.DS_Store
+*.DS_Store
 *.swp
-<<<<<<< HEAD
 *.build
 *.lock
-=======
->>>>>>> parent of 3f27563... Prettify Readme
 
 /compiler_wrapper
 /config*
@@ -27,7 +24,6 @@
 /perlmod/Fink/FinkVersion.pm
 /t/basepath/etc/apt/sources.list
 /t/basepath/etc/apt/sources.list.finkbak
-<<<<<<< HEAD
 
 debs
 dists
@@ -35,5 +31,3 @@ old
 override
 override.lock
 
-=======
->>>>>>> parent of 3f27563... Prettify Readme
