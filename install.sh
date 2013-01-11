@@ -5,7 +5,7 @@
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
-# Copyright (c) 2001-2012 The Fink Package Manager Team
+# Copyright (c) 2001-2013 The Fink Package Manager Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -99,7 +99,7 @@ for file in update/ltmain.sh update/Makefile.in.in ; do
   install -c -p -m 644 $file "$basepath/lib/fink/update/"
 done
 
-for file in AUTHORS COPYING README README.html readme.*.html \
+for file in AUTHORS COPYING README README.html README.removing-fink-bld readme.*.html \
             INSTALL INSTALL.html NEWS STYLE TODO* USAGE USAGE.html ; do
   install -c -p -m 644  $file "$basepath/share/doc/fink/"
 done

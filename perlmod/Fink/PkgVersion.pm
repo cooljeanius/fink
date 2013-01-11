@@ -4,7 +4,7 @@
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
-# Copyright (c) 2001-2012 The Fink Package Manager Team
+# Copyright (c) 2001-2013 The Fink Package Manager Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -31,7 +31,8 @@ use Fink::Services qw(&filename &execute
 					  &get_system_perl_version
 					  &get_path &eval_conditional &enforce_gcc
 					  &dpkg_lockwait &aptget_lockwait &lock_wait
-					  &store_rename &apt_available);
+					  &store_rename &apt_available
+					  &is_accessible);
 use Fink::CLI qw(&print_breaking &print_breaking_stderr &rejoin_text
 				 &prompt_boolean &prompt_selection
 				 &should_skip_prompt &die_breaking);
@@ -271,6 +272,8 @@ a warning message and return a ref to an empty hash (i.e., ignore the
 
 =cut
 
+# must be class method because it controls if/how to parse a .info
+# file, so not enough data would be known yet to create a PV object
 sub handle_infon_block {
 	shift;	# class method - ignore first parameter
 	my $properties = shift;
@@ -527,7 +530,7 @@ sub initialize {
 
 	# Setup restricted expansion hash. NOTE: multivalue lists were already cleared
 	$expand = { };
-	$self->{_type_hash} = $type_hash = $self->type_hash_from_string($self->param_default("Type", ""));
+	$self->{_type_hash} = $type_hash = $self->type_hash_from_string($self->param_default("Type", ""), $self->{_filename});
 	foreach (keys %$type_hash) {
 		( $expand->{"type_pkg[$_]"} = $expand->{"type_raw[$_]"} = $type_hash->{$_} ) =~ s/\.//g;
 		( $expand->{"type_num[$_]"} = $type_hash->{$_} ) =~ s/[^\d]//g;
@@ -1939,7 +1942,7 @@ sub _setup_type_hash {
 		die "Can't check non-dummy type of unloaded PkgVersion\n";
 	}
 
-	$self->{_type_hash} = $self->type_hash_from_string($self->param_default("Type", ""));
+	$self->{_type_hash} = $self->type_hash_from_string($self->param_default("Type", ""), $self->{_filename});
 	return 1;
 }
 
@@ -1971,9 +1974,20 @@ sub get_subtype {
 	return $self->{_type_hash}->{$type};
 }
 
-# given a string representing the Type: field (with no multivalue
-# subtype lists), return a ref to a hash of type=>subtype
+=item type_hash_from_string
 
+  my $type_hash = Fink::PkgVersion->type_hash_from_string($string, $filename);
+
+Given a $string representing the Type: field of a single package
+(i.e., specific variant, not multivalue subtype lists), return a ref
+to a hash of type=>subtype key/value pairs. The $filename is used in
+error-reporting if the $string cannot be parsed.
+
+=cut
+
+# must be class method because it controls if/how to parse a .info
+# file and how to construct %n, so not enough data would be known yet
+# to create a PV object
 sub type_hash_from_string {
 	shift;	# class method - ignore first parameter
 	my $string = shift;
@@ -1989,7 +2003,7 @@ sub type_hash_from_string {
 			# have subtype
 			$hash{lc $1} = $2;
 		} else {
-			warn "Bad Type specifier '$_' in $filename\n";
+			warn "Bad Type specifier '$_' in '$string' of $filename\n";
 		}
 	}
 	return \%hash;
@@ -3626,7 +3640,7 @@ sub phase_patch {
 		if ($self->has_param('Patch')) {
 			die "Cannot specify both Patch and PatchFile!\n";
 		}
-
+		my $dir_checked;
 		for my $suffix ($self->get_patchfile_suffixes()) {
 			# field contains simple filename with %-exp
 			# figure out actual absolute filename
@@ -3640,6 +3654,14 @@ sub phase_patch {
 			my $file_md5 = file_MD5_checksum($file);  # old API so we are back-portable to branch_0-24
 			if ($md5 ne $file_md5) {
 				die "PatchFile$suffix \"$file\" checksum does not match!\nActual: $file_md5\nExpected: $md5\n";
+			}
+
+			# check that we're contained in a world-executable directory
+			unless ($dir_checked) {
+				my ($status,$dir) = is_accessible(dirname($file),'01');
+				die "$dir and its contents need to have at least o+x permissions. Run:\n\n".
+					"sudo chmod -R o+x $dir\n\n" if $dir; 
+				$dir_checked=1; 
 			}
 
 			# make sure patchfile exists and can be read by the user (root
@@ -4420,7 +4442,7 @@ EOF
 	### we will know if a packages file has be changed
 	
 	require File::Find;
-	my $md5s;
+	my $md5s="";
 	my $md5check=Fink::Checksum->new('MD5');
 	
 	File::Find::find({

@@ -4,7 +4,7 @@
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
-# Copyright (c) 2001-2012 The Fink Package Manager Team
+# Copyright (c) 2001-2013 The Fink Package Manager Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ use Fink::Services qw(&latest_version &sort_versions
 					  &count_files
 					  &call_queue_clear &call_queue_add
 					  &dpkg_lockwait &aptget_lockwait &store_rename &get_options
-					  $VALIDATE_HELP &apt_available &ensure_fink_bld);
+					  $VALIDATE_HELP &apt_available &ensure_fink_bld &select_legal_path);
 use Fink::CLI qw(&print_breaking &print_breaking_stderr
 				 &prompt_boolean &prompt_selection
 				 &get_term_width &die_breaking);
@@ -237,10 +237,30 @@ sub process {
 		}
 	}
 
-	# update fink-bld if required
-	{
-		my $status=&ensure_fink_bld() if ($cmd =~ /build|update|install|update|activate|use/) ;
+	if ($cmd =~ /build|update|install|activate|use/) {
+		# update fink-bld if required
+		&ensure_fink_bld();
+		
+		# check that Basepath, FetchAltDir and Buildpath have and are contained within a
+		# directory structure with appropriate permissions.
+		# We'll traverse all the way to $basepath/src, since we have to operate there
+		# directly, too.
+		die "\n" if !(&select_legal_path("Basepath", $basepath));
+		# we've gone all the way down $basepath, so let's just check $basepath/src
+		# for executability directly. 
+		die "\n" if !(&select_legal_path("SourceDir", "$basepath/src"));
+		# Check FetchAltDir
+		my $fetch_alt_dir=$self->{config}->param('FetchAltDir');
+		if ($fetch_alt_dir) {
+			die "\n" if !(&select_legal_path("FetchAltDir", $fetch_alt_dir));
+		}
+		# Check Buildpath
+		my $build_path=$self->{config}->param('Buildpath');
+		if ($build_path) {
+			die "\n" if !(&select_legal_path("Buildpath", $build_path));
+		}
 	}	
+	
 	# Warn about Spotlight
 	if (&spotlight_warning()) {
 		$self->{config}->save;
