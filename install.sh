@@ -5,7 +5,7 @@
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
-# Copyright (c) 2001-2013 The Fink Package Manager Team
+# Copyright (c) 2001-2014 The Fink Package Manager Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -104,24 +104,23 @@ for file in AUTHORS COPYING README README.html README.removing-fink-bld readme.*
   install -c -p -m 644  $file "$basepath/share/doc/fink/"
 done
 
-# some/place/ChangeLog goes as ChangeLoge.some.place
-for cl_src in . perlmod perlmod/Fink update; do
-  cl_dst=`echo $cl_src | tr '/' '.' | sed -e 's/^\.*//'`
-  [ -n "$cl_dst" ] && cl_dst=".$cl_dst"
-  install -c -p -m644 $cl_src/ChangeLog "$basepath/share/doc/fink/ChangeLog$cl_dst"
-done
-
 for gccvers in 3.3 4.0; do
 	install -c -p -m 755 "g++-wrapper-$gccvers" \
 		"$basepath/var/lib/fink/path-prefix-g++-$gccvers/g++"
 	ln -s -n -f g++ "$basepath/var/lib/fink/path-prefix-g++-$gccvers/c++" 
 done
 
-for file in c++ c++-4.2 c++-4.0 cc gcc gcc-4.0 gcc-4.2 g++ g++-4.0 g++-4.2; do
-    ln -s compiler_wrapper "$basepath/var/lib/fink/path-prefix-10.6/$file"
-done
 install -c -p -m 755 "compiler_wrapper" \
 	    "$basepath/var/lib/fink/path-prefix-10.6/compiler_wrapper"
+for file in \
+	cc \
+	c++ c++-4.0 c++-4.2 \
+	gcc gcc-4.0 gcc-4.2 \
+	g++ g++-4.0 g++-4.2 \
+	clang clang++ \
+; do
+    ln -s compiler_wrapper "$basepath/var/lib/fink/path-prefix-10.6/$file"
+done
 
 # Gotta do this in install.sh, takes too long for setup.sh
 echo "Creating man pages from POD..."

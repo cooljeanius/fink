@@ -1,13 +1,13 @@
-# This file is based on Text::ParseWords v3.27 from CPAN.
+# This file is based on Text::ParseWords v3.29 from CPAN.
 # It was converted to Fink::Text::ParseWords and further modified 
-# for use by Fink. You can read about these changes in the accompanying
-# ChangeLog files and by browsing the CVS repository.
+# for use by Fink. You can read about these changes by browsing
+# the fink git repository.
 
 package Fink::Text::ParseWords;
 
 use strict;
 require 5.006;
-our $VERSION = "3.27";
+our $VERSION = "3.29";
 
 
 use Exporter;
@@ -279,6 +279,10 @@ Replacing C<quotewords('\s+', 0, q{this   is...})>
 with C<shellwords(q{this   is...})>
 is a simpler way to accomplish the same thing.
 
+=head1 SEE ALSO
+
+L<Text::CSV> - for parsing CSV files
+
 =head1 AUTHORS
 
 Maintainer: Alexandr Ciornii <alexchornyATgmail.com>.
@@ -297,7 +301,7 @@ Jeff Friedl <jfriedl@yahoo-inc.com> for telling me not to worry about
 error-checking (sort of-- you had to be there).
 
 For the changes by Fink:
-Copyright (C) 2005-2013 The Fink Package Manager Team.
+Copyright (C) 2005-2014 The Fink Package Manager Team.
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2

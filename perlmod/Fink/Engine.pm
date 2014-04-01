@@ -4,7 +4,7 @@
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
-# Copyright (c) 2001-2013 The Fink Package Manager Team
+# Copyright (c) 2001-2014 The Fink Package Manager Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -178,9 +178,8 @@ sub process {
 		return;
 	}
 
-	if (not exists $commands{$cmd}) {
-		die "fink: unknown command \"$cmd\".\nType 'fink --help' for more information.\n";
-	}
+	# Pop up help text when arbitrary verbs are used.
+	exit &execute("fink --help", quiet=>1) if (not exists $commands{$cmd});
 
 	# Store original @ARGV in case we want to know how we were called.
 	# This is a stack (a ref to a list of refs to @ARGV) in case we
@@ -238,16 +237,39 @@ sub process {
 	}
 
 	if ($cmd =~ /build|update|install|activate|use/) {
-		# update fink-bld if required
-		&ensure_fink_bld();
-		
+		# Check if the Distribution encoded in fink.conf matches the current OS version
+		# or if there is a permitted upgrade path.
+		my $distribution = $Fink::Config::distribution;
+		my $osversion = &Fink::Services::get_osx_vers();
+		# return immediately if distribution and OS match
+		unless ($osversion eq $distribution) {
+			my $valid_upgrade = 0; #default
+			# legal update paths; add new ones as needed
+			$valid_upgrade = 1 if ($osversion eq "10.6" and $distribution eq "10.5");
+			$valid_upgrade = 1 if ($osversion eq "10.8" and $distribution eq "10.7");
+			if ($valid_upgrade) {
+				# allow reinstalls to proceed otherwise block the operation.
+				warn "Use 'fink reinstall fink' to switch  distributions\n" .
+					 "from $distribution to $osversion.\n";
+				die "'$cmd' operation not permitted.\n" if $cmd ne "reinstall";
+			} else {
+				die "\nWe don't support updates from $distribution to $osversion.\n" .
+					"Check the 'Clean Upgrade' section of $basepath/share/doc/fink/INSTALL\n" .
+					"or $basepath/share/doc/fink/INSTALL.html for information about \n" .
+					"how to proceed.\n\n".
+					"'$cmd' operation not permitted.\n"
+			}
+		}
+
+		&ensure_fink_bld(); # update fink-bld if required
+
 		# check that Basepath, FetchAltDir and Buildpath have and are contained within a
 		# directory structure with appropriate permissions.
 		# We'll traverse all the way to $basepath/src, since we have to operate there
 		# directly, too.
 		die "\n" if !(&select_legal_path("Basepath", $basepath));
 		# we've gone all the way down $basepath, so let's just check $basepath/src
-		# for executability directly. 
+		# for executability directly.
 		die "\n" if !(&select_legal_path("SourceDir", "$basepath/src"));
 		# Check FetchAltDir
 		my $fetch_alt_dir=$self->{config}->param('FetchAltDir');
@@ -259,8 +281,8 @@ sub process {
 		if ($build_path) {
 			die "\n" if !(&select_legal_path("Buildpath", $build_path));
 		}
-	}	
-	
+	}
+
 	# Warn about Spotlight
 	if (&spotlight_warning()) {
 		$self->{config}->save;
@@ -655,6 +677,12 @@ sub do_real_list {
 						print "\"$pname\" -> \"$1\";\n";
 					}
 				}
+			} else {
+				my @providers = $package->get_all_providers();
+				for my $provider (@providers) {
+					my $name = $provider->get_name();
+					print "\"$pname\" -> \"$name\";\n" if $name ne $pname;
+				}
 			}
 		} else {
 			printf $formatstr,
@@ -957,11 +985,27 @@ sub cmd_remove {
 	}
 }
 
+=item get_pkglist
+
+	@packages = get_pkglist $cmd;
+	@packages = get_pkglist $cmd, @selected;
+
+The $cmd is the fink command-line mode (and optional mode-specific
+flags), such as "remove" or "purge --recursive".  Given a list of
+@selected packages, return a list from which those than cannot be
+removed have been elided. Default is all known packages, but this is
+only allowable in --buildonly mode. Packages elided from the list are
+those that are virtual, Essential:yes, or not-installed.
+
+=cut
+
 sub get_pkglist {
 	my $cmd = shift;
-	my ($package, @plist, $pname, @selected, $pattern, @packages);
-	my ($buildonly, $po);
+	my (@plist, @selected, @packages);
+	my ($buildonly);
 
+	### is this usable? 'fink remove --help' doesn't display it
+	### and 'fink remove -b' reports "Known option: b"
 	get_options($cmd, [
 		[ 'buildonly|b'	=> \$buildonly, "Only packages which are Build Depends Only" ],
 	], \@_, helpformat => "%intro{[options] [string]}\n%all{}\n");
@@ -975,6 +1019,7 @@ sub get_pkglist {
 			die "no package specified for command '$cmd'!\n";
 		}
 	} else {
+		my $pattern;
 		@selected = ();
 		while (defined($pattern = shift)) {
 			$pattern = lc quotemeta $pattern; # fixes bug about ++ etc in search string.
@@ -986,8 +1031,8 @@ sub get_pkglist {
 		die "no package specified for command '$cmd'!\n";
 	}
 
-	foreach $pname (sort @selected) {
-		$package = Fink::Package->package_by_name($pname);
+	foreach my $pname (sort @selected) {
+		my $package = Fink::Package->package_by_name($pname);
 
 		# Can only remove/purge installed pkgs
 		my ($vers) = $package->list_installed_versions();
@@ -1017,7 +1062,7 @@ sub get_pkglist {
 
 	# In case no packages meet the requirements above.
 	if ($#packages < 0) {
-		print "Nothing ".$cmd."d\n";
+		print "No packages to $cmd\n";
 		exit(0);
 	}
 
@@ -2466,7 +2511,7 @@ HELPFORMAT
 					 $_ =~ /^tar\d*filesrename$/ or
 					 $_ =~ /^update(configguess|libtool)indirs$/ or
 					 $_ =~ /^set/ or $_ =~ /^jarfiles$/ or
-					 $_ =~ /^patch(|\d*file|\d*file-md5)$/ or $_ eq 'appbundles' or
+					 $_ =~ /^patch(|file\d*|file\d*-md5)$/ or $_ eq 'appbundles' or
  					 $_ eq 'infodocs' or $_ =~ /^daemonicname$/
 					) {
 				# singleline fields start on the same line, have
@@ -2709,7 +2754,6 @@ sub choose_filter {
 		return 0;
 	}
 }
-
 
 =item choose_package_conf
 

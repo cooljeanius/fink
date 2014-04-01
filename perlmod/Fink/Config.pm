@@ -4,7 +4,7 @@
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
-# Copyright (c) 2001-2013 The Fink Package Manager Team
+# Copyright (c) 2001-2014 The Fink Package Manager Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -34,9 +34,9 @@ require Exporter;
 
 our @ISA	 = qw(Exporter Fink::Base);
 our @EXPORT_OK	 = qw($config $basepath $libpath $buildpath $dbpath
-                      $distribution $ignore_errors
-                      get_option set_options fink_tree_default
-                     );
+					  $distribution $ignore_errors
+					  get_option set_options fink_tree_default
+					 );
 our $VERSION	 = 1.00;
 
 
@@ -336,7 +336,7 @@ HELPFORMAT
 		print <<"EOF";
 
 Copyright (c) 2001 Christoph Pfisterer
-Copyright (c) 2001-2013 The Fink Package Manager Team
+Copyright (c) 2001-2014 The Fink Package Manager Team
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -735,7 +735,7 @@ EOF
 	# We only include the remote debs if the bindist looks like it's ok
 	if (!$self->bindist_check_prefix && !$self->bindist_check_distro) {
 
-		my $apt_mirror = "http://us.dl.sourceforge.net/fink/direct_download";
+		my $apt_mirror = "http://bindist.finkmirrors.net";
 
 		if ($self->has_param("Mirror-apt")) {
 			$apt_mirror = $self->param("Mirror-apt");
@@ -748,14 +748,8 @@ EOF
 # Official binary distribution: download location for packages
 # from the latest release
 EOF
-
-	$body .= "deb $apt_mirror $distribution/release $apt_trees\n\n";
-		$body .= <<EOF;
-# Official binary distribution: download location for updated
-# packages built between releases
-EOF
-
-	$body .= "deb $apt_mirror $distribution/current $apt_trees\n\n";
+	# bindist structure for supported distros as of 3/2014.  
+	$body .= "deb $apt_mirror/$distribution stable $apt_trees\n\n";
 
 	}
 
@@ -937,21 +931,21 @@ the values as:
 
 =over 4
 
-=item 3
+=item 
 
-full
+3 full
 
-=item 2
+=item 
 
-download and tarballs
+2 download and tarballs
 
-=item 1
+=item
 
-download
+1 download
 
-=item 0
+=item
 
-none
+0 none
 
 =back
 
