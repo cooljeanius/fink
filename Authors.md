@@ -7,6 +7,10 @@ Christoph Pfisterer <cp@chrisp.de>
 
 Current maintainers
 ------------------
+Justin F. Hallett <thesin@southofheaven.net>
+
+Alexander Hansen  <alexkhansen@users.sourceforge.net>
+
 Max Horn <max@quendi.de>
 
 Daniel Macks <dmacks@netspace.org>
@@ -26,10 +30,6 @@ Martin Costabel <costabel@wanadoo.fr>
 Sylvain Cuaz <zauc@users.sourceforge.net>
 
 Finlay Dobbie <finlayd@users.sourceforge.net>
-
-Justin F. Hallett <thesin@southofheaven.net>
-
-Alexander Hansen  <alexkhansen@users.sourceforge.net>
 
 Mohammad A. Haque  <batmanppc@users.sourceforge.net>
 
@@ -53,4 +53,4 @@ Michael G Schwern <schwern@pobox.com>
 
 Chris Zubrzycki <beren12@users.sourceforge.net>
 
-
+Eirc Gallager <egall@gwmail.gwu.edu>

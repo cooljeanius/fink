@@ -18,6 +18,7 @@ all:
 	@echo -e "\tclean       remove all extraneous files"
 	@echo    ""
 
+#TODO: switch to git:
 commit: test
 	@cvs commit
 
@@ -38,7 +39,7 @@ test: manifest_check test_setup
 	@# (which also must be coded into t/Services/execute_nonroot_okay.t)
 	cd t && ./testmore.pl && find ${TESTS} -name '*.t' | sort | PREFIX="$(PREFIX)" xargs /usr/bin/perl -I`pwd`/../perlmod -MTest::Harness -e 'runtests(@ARGV)'
 
-# remove all files that are ignored by CVS
+# remove all files that are ignored by CVS (TODO: make that git:)
 clean:
 	@# BUG: this for...`find` breaks if any dirname relative to the
 	@# current one contains whitespace
