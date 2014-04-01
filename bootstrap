@@ -683,7 +683,7 @@ print "Creating initial configuration...\n";
 my ($configpath, $config);
 
 $configpath = "$installto/etc/fink.conf";
-open(CONFIG, '>', $configpath) or die "can't create configuration $configpath: $!\n";
+open(CONFIG, '>', $configpath) or die "cannot create configuration $configpath: $!\n";
 print CONFIG <<"EOF";
 # Fink configuration, initially created by bootstrap
 Basepath: $installto
@@ -693,7 +693,7 @@ Distribution: $distribution
 SelfUpdateTrees: $selfupdatetrees
 EOF
 
-close(CONFIG) or die "can't write configuration $configpath: $!\n";
+close(CONFIG) or die "cannot write configuration $configpath: $!\n";
 
 $config = &read_config($configpath);
 # override path to data files (update, mirror)

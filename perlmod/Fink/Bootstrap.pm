@@ -4,7 +4,7 @@
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
-# Copyright (c) 2001-2012 The Fink Package Manager Team
+# Copyright (c) 2001-2014 The Fink Package Manager Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -158,10 +158,8 @@ sub check_host {
 		$gcc = Fink::Services::enforce_gcc(<<GCC_MSG);
 Under CURRENT_SYSTEM, Fink must be bootstrapped or updated with gcc
 EXPECTED_GCC, however, you currently have gcc INSTALLED_GCC selected.
-This typically is due to alteration of symlinks which were
-installed by Xcode. To correct this problem, you will need
-to restore the compiler symlinks to the configuration that
-Apple provides.
+Make sure that your developer tools are current for your system and
+have not been locally modified.
 GCC_MSG
 		$gcc = "-gcc" . $gcc;
 	}
@@ -186,16 +184,9 @@ GCC_MSG
 		&print_breaking("This system no longer supported " .
 			"for current versions of fink.  Please use fink 0.30.2 or earlier.\n");
 		$distribution = "10.4";
-	} elsif ($host =~ /^(powerpc|i386)-apple-darwin9\.[0-8]\.[0-2]/) {
-		&print_breaking("\nThis version of fink supports bootstrapping under Mac OS X 10.5, " .
-			"as well as upgrading from 10.4. However, DIRECT UPGRADING FROM " .
-			"10.4-transitional, 10.3 OR EARLIER IS NOT SUPPORTED.\n\n") unless ($arch eq "x86_64");
-		$distribution = "10.5";
 	} elsif ($host =~ /^(powerpc|i386)-apple-darwin9\./) {
-		&print_breaking("This system was not released at the time " .
-			"this Fink release was made.  Prerelease versions " .
-			"of Mac OS X might work with Fink, but there are no " .
-			"guarantees.");
+		&print_breaking("This system no longer supported " .
+			"for current versions of fink.  Please use fink 0.34.9 or earlier.\n");
 		$distribution = "10.5";
 	} elsif ($host =~ /^i386-apple-darwin10\.[0-8]\.[0-3]/) {
 		&print_breaking("\nThis version of fink supports bootstrapping under Mac OS X 10.6, " .
@@ -208,7 +199,7 @@ GCC_MSG
 			"of Mac OS X might work with Fink, but there are no " .
 			"guarantees.");
 		$distribution = "10.6";
-	} elsif ($host =~ /^i386-apple-darwin11\.[0-4]\.0/) {
+	} elsif ($host =~ /^i386-apple-darwin11\.[0-4]\.[0-2]/) {
 		&print_breaking("This system is supported and tested.");
 		$distribution = "10.7";
 	} elsif ($host =~ /^i386-apple-darwin11\./) {
@@ -217,7 +208,7 @@ GCC_MSG
 			"of Mac OS X might work with Fink, but there are no " .
 			"guarantees.");
 		$distribution = "10.7";
-	} elsif ($host =~ /^i386-apple-darwin12\.[0-1]\.0/) {
+	} elsif ($host =~ /^i386-apple-darwin12\.[0-5]\.[0-1]/) {
 		&print_breaking("This system is supported and tested.");
 		$distribution = "10.8";
 	} elsif ($host =~ /^i386-apple-darwin12\./) {
@@ -226,6 +217,21 @@ GCC_MSG
 			"of Mac OS X might work with Fink, but there are no " .
 			"guarantees.");
 		$distribution = "10.8";
+	} elsif ($host =~ /^i386-apple-darwin13\.[0-2]/) {
+		&print_breaking("This system is supported and tested.");
+		$distribution = "10.9";
+	} elsif ($host =~ /^i386-apple-darwin13\./) {
+		&print_breaking("This system was not released at the time " .
+			"this Fink release was made.  Prerelease versions " .
+			"of Mac OS X might work with Fink, but there are no " .
+			 "guarantees.");
+		$distribution = "10.9";
+	} elsif ($host =~ /^i386-apple-darwin(\d+)\./) {
+		&print_breaking("This system was not released at the time " .
+			"this Fink release was made.  Prerelease versions " .
+			"of Mac OS X might work with Fink, but there are no " .
+			"guarantees.");
+		$distribution = "10." . ($1-4);
 	} else {
 		&print_breaking("This system is unrecognized and not ".
 			"supported by Fink.");
@@ -344,8 +350,8 @@ Called by inject_package() and fink's postinstall.pl.
 sub add_injected_to_trees {
 
 	my $distribution = shift || die "The API for add_injected_to_trees has
-       changed, and now requires an argument.  If you see this message,
-       complain to your friendly neighborhood fink maintainers.\n";;
+	   changed, and now requires an argument.  If you see this message,
+	   complain to your friendly neighborhood fink maintainers.\n";;
 
 	my $trees = $config->param("Trees");
 	if ($trees =~ /^\s*$/) {
@@ -427,6 +433,7 @@ sub is_perl_supported {
 	} elsif ("$]" == "5.010000") {
 	} elsif ("$]" == "5.012003") {
 	} elsif ("$]" == "5.012004") {
+	} elsif ("$]" == "5.016002") {
 	} else {
 		# unsupported version of perl
 		return 0;
@@ -1040,6 +1047,7 @@ sub get_selfupdatetrees {
 		"10.6" => "10.4",
 		"10.7" => "10.7",
 		"10.8" => "10.7",
+		"10.9" => "10.7"
 		);
 
 	return $selfupdatetrees{$distribution};

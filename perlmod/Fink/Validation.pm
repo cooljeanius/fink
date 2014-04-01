@@ -4,7 +4,7 @@
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
-# Copyright (c) 2001-2012 The Fink Package Manager Team
+# Copyright (c) 2001-2014 The Fink Package Manager Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -25,6 +25,7 @@ package Fink::Validation;
 
 use Fink::Services qw(&read_properties &read_properties_var &expand_percent &expand_percent2 &file_MD5_checksum &pkglist2lol &version_cmp);
 use Fink::Config qw($config);
+use Fink::PkgVersion;
 use Cwd qw(getcwd);
 use File::Find qw(find);
 use File::Path qw(rmtree);
@@ -650,11 +651,11 @@ sub validate_info_file {
 			# fink recently changed .tar.xz source handling (now
 			# auto-extracts) and maybe other .xz effects as well
 			if (exists $source_props->{$_} and $source_props->{$_} =~ /\.xz$/ ) {
-				$looks_good=0 unless _min_fink_version($properties->{builddepends}, '0.32', 'use of a .xz source archive', $filename); 
+				$looks_good=0 unless _require_dep($properties, {build => {'fink' => '0.32'} }, 'use of a .xz source archive', $filename);
 			}
 		}
 	}
-	
+
 	$expand = { 'n' => $pkgname,
 				'N' => $pkgname,
 				'v' => $pkgversion,
@@ -807,46 +808,11 @@ sub validate_info_file {
 			if ($line =~ m,^\s*(DYLD_LIBRARY_PATH:\s+($basepath|\%p)/lib/?)\s*$,) {
 				print "Error: '$1' in RuntimeVars will break many shared libraries. ($filename)\n";
 				$looks_good = 0;
-			# error for PYTHONPATH pointing to global install location in RuntimeVars
-			} elsif ($line =~ m,^\s*(PYTHONPATH:\s+($basepath|\%p)/lib/(Python|python\d\.\d/))\s*$,) {
-				print "Error: '$1' in RuntimeVars can break other Python scripts. ($filename)\n";
+			# error for PYTHONPATH as it is version agnostic and will break other pymods
+        	} elsif ($line =~ m,^\s*PYTHONPATH:.*$,) {
+				print "Error: 'PYTHONPATH' in RuntimeVars can break other Python scripts. ($filename)\n";
+				$looks_good = 0;
 			}
-		}
-	}
-
-	# Warn for missing / overlong package descriptions
-	$value = $properties->{description};
-	if (not (defined $value and length $value)) {
-		print "Error: No package description supplied. ($filename)\n";
-		$looks_good = 0;
-	} elsif (length($value) > 60 and !&obsolete_via_depends($properties) ) {
-		print "Error: Length of package description exceeds 60 characters. ($filename)\n";
-		$looks_good = 0;
-	} elsif (Fink::Config::get_option("Pedantic")) {
-		# Some pedantic checks
-		if (length($value) > 45 and !&obsolete_via_depends($properties) ) {
-			print "Warning: Length of package description exceeds 45 characters. ($filename)\n";
-			$looks_good = 0;
-		}
-		if ($value =~ m/^[Aa]n? /) {
-			print "Warning: Description starts with \"A\" or \"An\". ($filename)\n";
-			$looks_good = 0;
-		}
-		if ($value =~ m/^[a-z]/) {
-			print "Warning: Description starts with lower case. ($filename)\n";
-			$looks_good = 0;
-		}
-		if ($value =~ /(\b\Q$pkgname\E\b|%\{?n)/i and !&obsolete_via_depends($properties) ) {
-			print "Warning: Description contains package name. ($filename)\n";
-			$looks_good = 0;
-		}
-		if ($value =~ m/\.$/) {
-			print "Warning: Description ends with \".\". ($filename)\n";
-			$looks_good = 0;
-		}
-		if ($value =~ m/^\[/) {
-			print "Warning: Descriptions beginning with \"[\" are only for special types of packages. ($filename)\n";
-			$looks_good = 0;
 		}
 	}
 
@@ -939,9 +905,9 @@ sub validate_info_file {
 		if ($field eq "patchfile") {
 # 0.24.12 came out many years ago and nothing that old likely even
 # boots on any currently supported OSX
-#			$looks_good = 0 unless _min_fink_version($properties->{builddepends}, '0.24.12', 'use of PatchFile', $filename);
+#			$looks_good = 0 unless _require_dep($properties, {build => {'fink' => '0.24.12'} }, 'use of PatchFile', $filename);
 		} else {
-			$looks_good = 0 unless _min_fink_version($properties->{builddepends}, '0.30.0', 'use of PatchFileN', $filename);
+			$looks_good = 0 unless _require_dep($properties, {build => {'fink' => '0.30.0'} }, 'use of PatchFileN', $filename);
 		}
 
 		# can't mix old and new patching styles
@@ -989,13 +955,58 @@ sub validate_info_file {
 	}
 
 	# instantiate the PkgVersion objects
-	my @pv = Fink::PkgVersion->pkgversions_from_info_file($full_filename, no_exclusions => 1);
+	my @pvs = Fink::PkgVersion->pkgversions_from_info_file($full_filename, no_exclusions => 1);
 
-	if (@pv > 1) {
+	if (@pvs > 1) {
 		my %names;
-		foreach (map {$_->get_name()} @pv) {
+		foreach (map {$_->get_name()} @pvs) {
 			if ($names{$_}++) {
 				print "Error: Duplicate declaration of package \"$_\". ($filename)\n";
+				$looks_good = 0;
+			}
+		}
+	}
+
+	# Warn for missing / overlong package descriptions
+	if (not (defined $properties->{description} and length $properties->{description})) {
+		# main package in .info must have one
+		print "Error: No package description supplied. ($filename)\n";
+		$looks_good = 0;
+	}
+
+	foreach my $pv (@pvs) {
+		# sanity-checks for each in family (including variants and splitoffs)
+
+		my $desc = $pv->{description};
+		my $name = $pv->get_name();
+
+		if (length($desc) > 60 and !$pv->is_obsolete()) {
+			print "Error: Description of \"$name\" exceeds 60 characters. ($filename)\n";
+			$looks_good = 0;
+		} elsif (Fink::Config::get_option("Pedantic")) {
+			# Some pedantic checks
+			if (length($desc) > 45 and !$pv->is_obsolete() ) {
+				print "Warning: Description of \"$name\" exceeds 45 characters. ($filename)\n";
+				$looks_good = 0;
+			}
+			if ($desc =~ m/^[Aa]n? /) {
+				print "Warning: Description of \"$name\" starts with \"A\" or \"An\". ($filename)\n";
+				$looks_good = 0;
+			}
+			if ($desc =~ m/^[a-z]/) {
+				print "Warning: Description of \"$name\" starts with lower case. ($filename)\n";
+				$looks_good = 0;
+			}
+			if ($desc =~ /\b\Q$name\E\b/i and !$pv->is_obsolete() ) {
+				print "Warning: Description of \"$name\" contains package name. ($filename)\n";
+				$looks_good = 0;
+			}
+			if ($desc =~ m/\.$/) {
+				print "Warning: Description of \"$name\" ends with \".\". ($filename)\n";
+				$looks_good = 0;
+			}
+			if ($desc =~ m/^\[/) {
+				print "Warning: Descriptions beginning with \"[\" are only for special types of packages. ($filename)\n";
 				$looks_good = 0;
 			}
 		}
@@ -1055,34 +1066,100 @@ sub _validate_info_filename {
 	return 1;
 }
 
-# Given a $builddepends from the $filename .info field, check whether
-# any "fink" less than the given $required_version will suffice. If so
-# (i.e., insufficient dependency for something that requires at least
-# the given version-string), print warning indicating the minimum
-# requirement for $feature
 
-sub _min_fink_version {
-	my $builddepends = shift;
-	my $required_version = shift;
+# Given a $package_hash hashref of fields, check that there is a
+# dependency on a specified minimum version of some package according
+# to the $required_versions hashref:
+#   One or more of these mode keys controlling the type of dep:
+#     "build" -- compile-time deps (BuildDepends and Depends)
+#     "run" -- run-time deps (Depends and RuntimeDepends)
+#   The value of each of the above keys is a hashref of the form:
+#     {$pkg,$minver}
+#   meaning there must be a dependency of the form: $pkg (>= $minver)
+#     If $minver is not defined, no "(>= ...)" is required.
+#     The actual dep in the $package_hash may be stricter (higher than
+#       $minver).
+# All entries in the hashrefs of all mode keys must be satisfied.
+# If there is not a sufficient dependency, a warning is printed
+# print warning indicating the minimum dependency requirement in
+# the $filename (.info file) for $feature.
+# The return value is a boolean indicating whether all dep
+# requirements were satisfied.
+sub _require_dep {
+	my $package_hash = shift;
+	my $required_versions = shift;
 	my $feature = shift;
 	my $filename = shift;
 
-	$builddepends = &pkglist2lol($builddepends);
+	my $all_ok = 1;
 
-	my $has_fink_bdep = 0;
-	foreach (@$builddepends) {
-		foreach my $atom (@$_) {
-			$atom =~ s/^\(.*?\)\s*//;
-			next unless $atom =~ /^fink\s*\(\s*(>>|>=)\s*(.*?)\)\s*$/;
-			$has_fink_bdep = 1 if version_cmp($2, '>=', $required_version);
+	if (exists $required_versions->{build}) {
+		my %reqs = %{$required_versions->{build}}; # clone so we can alter it
+
+		foreach (
+			@{&pkglist2lol($package_hash->{builddepends})},
+			@{&pkglist2lol($package_hash->{depends})},
+		) {
+			foreach my $atom (@$_) {
+				$atom =~ s/^\(.*?\)\s*//;
+				while ( my($pkg,$minver) = each %reqs ) {
+					if (defined $minver) {
+						# need to check version spec
+						$atom =~ /^$pkg\s*\(\s*(>>|>=)\s*(.*?)\)\s*$/;
+						delete $reqs{$pkg} if version_cmp($2, '>=', $minver);
+					} elsif ($atom eq $pkg) {
+						# no version spec needed, just check that dep
+						# exists without version spec...
+						delete $reqs{$pkg};
+ 					} elsif ($atom =~ /^$pkg\s*\(/) {
+						# ...but any version spec still okay
+						delete $reqs{$pkg};
+					}
+				}
+			}
+		}
+
+		if (keys %reqs) {
+			print "Error: $feature requires declaring a BuildDepends or Depends on:\n";
+			print map { "\t$_" . ( defined $reqs{$_} ? " (>= $reqs{$_})\n" : "\n" ) } sort keys %reqs;
+			$all_ok = 0;
 		}
 	}
 
-	if (!$has_fink_bdep) {
-		print "Error: $feature requires declaring a BuildDepends on fink (>= $required_version) or higher. ($filename)\n";
-		return 0;
+	if (exists $required_versions->{run}) {
+		my %reqs = %{$required_versions->{run}}; # clone so we can alter it
+
+		foreach (
+			@{&pkglist2lol($package_hash->{depends})},
+			@{&pkglist2lol($package_hash->{runtimedepends})},
+		) {
+			foreach my $atom (@$_) {
+				$atom =~ s/^\(.*?\)\s*//;
+				while ( my($pkg,$minver) = each %reqs ) {
+					if (defined $minver) {
+						# need to check version spec
+						$atom =~ /^$pkg\s*\(\s*(>>|>=)\s*(.*?)\)\s*$/;
+						delete $reqs{$pkg} if version_cmp($2, '>=', $minver);
+					} elsif ($atom eq $pkg) {
+						# no version spec needed, just check that dep
+						# exists without version spec...
+						delete $reqs{$pkg};
+ 					} elsif ($atom =~ /^$pkg\s*\(/) {
+						# ...but any version spec still okay
+						delete $reqs{$pkg};
+					}
+				}
+			}
+		}
+
+		if (keys %reqs) {
+			print "Error: $feature requires declaring a Depends or RuntimeDepends on:\n";
+			print map { "\t$_" . ( defined $reqs{$_} ? " (>= $reqs{$_})\n" : "\n" ) } sort keys %reqs;
+			$all_ok = 0;
+		}
 	}
-	return 1;
+
+	return $all_ok;
 }
 
 # checks that are common to a parent and a splitoff package of a .info file
@@ -1282,7 +1359,7 @@ sub validate_info_component {
 	# Packages using RuntimeDepends must BuildDepends on a fink that supports it
 	$value = $properties->{runtimedepends};
 	if (defined $value) {
-		$looks_good = 0 unless _min_fink_version($options{builddepends}, '0.32', 'use of RuntimeDepends', $filename);
+		$looks_good = 0 unless _require_dep(\%options, { build => {'fink' => '0.32'} }, 'use of RuntimeDepends', $filename);
 	}
 
 	# check syntax of each line of Shlibs field
@@ -1295,11 +1372,11 @@ sub validate_info_component {
 			next unless /\S/;
 
 			if (s/^\(.*?\)\s*//) {
-				$looks_good = 0 unless _min_fink_version($options{builddepends}, '0.27.2', 'use of conditionals in Shlibs', $filename);
+				$looks_good = 0 unless _require_dep(\%options, { build => {'fink' => '0.27.2'} }, 'use of conditionals in Shlibs', $filename);
 		}
 
 			if (/^\!\s*(.*)/) {
-				$looks_good = 0 unless _min_fink_version($options{builddepends}, '0.28', 'private-library entry in Shlibs', $filename);
+				$looks_good = 0 unless _require_dep(\%options, { build => {'fink' => '0.28'} }, 'private-library entry in Shlibs', $filename);
 				if ($1 =~ /\s/) {
 					print "Warning: Malformed line in field \"shlibs\"$splitoff_field.\n  $_\n";
 					$looks_good = 0;
@@ -1367,7 +1444,7 @@ sub validate_info_component {
 
 	$value = $properties->{conffiles};
 	if (defined $value and $value =~ /\(.*?\)/) {
-		$looks_good = 0 unless _min_fink_version($options{builddepends}, '0.27.2', 'use of conditionals in ConfFiles', $filename);
+		$looks_good = 0 unless _require_dep(\%options, { build => {'fink' => '0.27.2'} }, 'use of conditionals in ConfFiles', $filename);
 	}
 
 	# Special checks when package building script uses an explicit interp
@@ -1410,7 +1487,7 @@ sub validate_info_component {
 			'modulebuild' => '0.30.2',
 		}->{$value};
 		if (defined $ds_min) {
-			$looks_good = 0 unless _min_fink_version($properties->{builddepends}, $ds_min, "use of DefaultScript:$value", $filename);
+			$looks_good = 0 unless _require_dep($properties, { build => {'fink' => $ds_min} }, "use of DefaultScript:$value", $filename);
 		} else {
 			print "Warning: unknown DefaultScript type \"$value\". ($filename)\n";
 			$looks_good = 0;
@@ -1628,11 +1705,11 @@ sub _validate_dpkg {
 		map { /\s*([^ \(]*)/, undef } split /[|,]/, $deb_control->{depends}
 	};
 
-	# prepare to check that -pmXXX and -pyXX packages only contain
+	# prepare to check that -pmXXX, -pyXX, and -rbXX packages only contain
 	# file in language-versioned locations: define a regex for the
 	# language-versioned path component
 	my $langver_re;
-	if ($deb_control->{package} =~ /-(pm|py)(\d+)$/) {
+	if ($deb_control->{package} =~ /-(pm|py|rb)(\d+)$/) {
 		$langver_re = $2;
 		if ($1 eq 'pm') {
 			# perl language is major.minor.teeny
@@ -1642,12 +1719,17 @@ sub _validate_dpkg {
 			} elsif ($langver_re =~ /^(\d)(\d)(\d)(\d)$/) {
 				# -pmWXYZ is perlW.X.YZ or perlW.XY.Z
 				$langver_re = "(?:$langver_re|$1.$2.$3$4|$1.$2$3.$4)";
+			} elsif ($langver_re =~ /^(\d)(\d\d)(\d\d)$/) {
+				# -pmXYYZZ is perlX.YY.ZZ
+				$langver_re = "(?:$langver_re|$1.$2.$3)";
 			}
 		} else {
 			# python language is major.minor
+			# ruby language is major.minor
 			# numbers are all "small" (one-digit)
 			$langver_re =~ /^(\d)(\d)$/;
 			# -pyXY is pythonX.Y
+			# -rbXY is rubyX.Y
 			$langver_re = "(?:$langver_re|$1.$2)";
 		}
 	}
@@ -1857,10 +1939,10 @@ sub _validate_dpkg {
 		}
 
 		# check for files in a language-versioned package whose path
-		# is not language-versioned (goal: language-versioned modules
-		# are orthogonal and do not conflict with each other)
+		# is not language-versioned (goal: all language-versions of a
+		# package are orthogonal and do not conflict with each other)
 		if (defined $langver_re and $filename !~ /$langver_re/ and !-d $File::Find::name) {
-			&stack_msg($msgs, "File in a language-versioned package is neither versioned nor in a versioned directory.", $filename);
+			&stack_msg($msgs, "File in a language-versioned package does not have a pathname specific to that version.", $filename);
 		}
 
 		# passing -framework flag and its argument as separate words

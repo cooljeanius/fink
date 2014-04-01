@@ -1,4 +1,4 @@
-Generated from: `$Fink: readme.en.xml,v 1.4 2006/09/16 23:17:53 dmrrsn Exp $`
+Generated from: `$Fink: readme.en.xml,v 1.8 2013/07/09 02:28:18 alexkhansen Exp$`
 
 Fink ReadMe
 =============

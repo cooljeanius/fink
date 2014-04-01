@@ -5,11 +5,11 @@ Fink Usage
 
 Setting The Paths
 -------------------
-To use the software installed in Fink's directory hierarchy, including the `fink` command itself, you must set your PATH environment variable (and some others) accordingly. Shell scripts are provided to do this for you. If you use `tcsh`, add the following to your .cshrc:
+To use the software installed in Fink's directory hierarchy, including the `fink` command itself, you must set your PATH environment variable (and some others) accordingly. Shell scripts are provided to do this for you. If you use `tcsh`, add the following to your `.cshrc`:
 
     source /sw/bin/init.csh
 
-Editing .cshrc will only affect new shells (i.e. newly opened Terminal windows), so you should also run this command in all Terminal windows that you opened before you edited the file. You'll also need to run "rehash" because `tcsh` caches the list of available commands internally.
+Editing `.cshrc` will only affect new shells (i.e. newly opened Terminal windows), so you should also run this command in all Terminal windows that you opened before you edited the file. You'll also need to run "`rehash`" because `tcsh` caches the list of available commands internally.
 
 If you use a Bourne type shell (e.g. `sh`, `bash`, `zsh`), use instead:
 
@@ -20,12 +20,7 @@ Note that the scripts also add /usr/X11R6/bin and /usr/X11R6/man to your path so
 
 Using Fink
 ------------
-Fink has several commands that work on packages. All of them need at least
-one package name, and all can handle several package names at once. You can
-specify just the package name (e.g. gimp), or a fully qualified name with a
-version number (e.g. gimp-1.2.1 or gimp-1.2.1-3). Fink will automatically
-choose the latest available version and revision when they are not
-specified.
+Fink has several commands that work on packages. All of them need at least one package name, and all can handle several package names at once. You can specify just the package name (e.g. gimp), or a fully qualified name with a version number (e.g. gimp-1.2.1 or gimp-1.2.1-3). Fink will automatically choose the latest available version and revision when they are not specified.
 
 What follows is a list of commands that Fink understands:
 
@@ -35,7 +30,6 @@ What follows is a list of commands that Fink understands:
 The `install` command is used to install packages. It downloads, configure, builds and installs the packages you name. It will also install required dependencies automatically, but will ask you for confirmation before it does so. Example:
 
     fink install nedit
-    
     Reading package info...
     Information about 131 packages read.
     The following additional package will be installed:

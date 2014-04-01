@@ -29,17 +29,29 @@ Martin Costabel <costabel@wanadoo.fr>
 
 Sylvain Cuaz <zauc@users.sourceforge.net>
 
+Brendan Cully <brendan@finkproject.org>
+
 Finlay Dobbie <finlayd@users.sourceforge.net>
+
+Eric Gallager <egall@gwmail.gwu.edu>
 
 Mohammad A. Haque  <batmanppc@users.sourceforge.net>
 
 Ben Hines <benh57@users.sourceforge.net>
+
+Jack Howarth <howarth@bromo.med.uc.edu>
+
+Daniel Johnson <daniel@daniel-johnson.org>
 
 Carsten Klapp <carstenklapp@users.sourceforge.net>
 
 Sebastien Maret <bmaret@users.sourceforge.net>
 
 Remi Mommsen <remigius.mommsen@cern.ch>
+
+Matthias Neeracher <neeracher@mac.com>
+
+Hanspeter Niederstrasser <nieder@users.sourceforge.net>
 
 Peter O'Gorman <ogorman@users.sourceforge.net>
 
@@ -53,4 +65,3 @@ Michael G Schwern <schwern@pobox.com>
 
 Chris Zubrzycki <beren12@users.sourceforge.net>
 
-Eirc Gallager <egall@gwmail.gwu.edu>

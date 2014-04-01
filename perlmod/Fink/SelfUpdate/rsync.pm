@@ -5,7 +5,7 @@
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
-# Copyright (c) 2001-2012 The Fink Package Manager Team
+# Copyright (c) 2001-2014 The Fink Package Manager Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -53,52 +53,35 @@ See documentation for the Fink::SelfUpdate base class.
 
 =item system_check
 
-This method builds packages from source, so it requires the
-"dev-tools" virtual package.
+Selfupdating builds packages from source, so it requires the
+"dev-tools" virtual package. Check for this and for the
+presence of an executable rsync binary.
 
 =cut
 
 sub system_check {
 	my $class = shift;  # class method for now
 
-	my ($line2,$line4)=("","");
-	{
-		my $osxversion=Fink::VirtPackage->query_package("macosx");
-		if (&version_cmp ("$osxversion", "<<", "10.6")) {
-			$line2="\nXcode, available on your original OS X install disk, or from "; 
-		} elsif (&version_cmp ("$osxversion", "<<", "10.7")) {
-			$line2="\nXcode, available on your original OS X install disk, from the App Store, or from\n" ;
-		} elsif (&version_cmp ("$osxversion", "<<", "10.8")) {
-			$line2 = ":\n* Xcode 4.1.x or Xcode 4.2.x from the App store or from\n"; 
-			$line4 = "\n* or the Xcode Command Line Tools package,\nwhich is available from connect.apple.com\nor via the Downloads tab of the Preferences in Xcode 4.3.x";
-		} else {
-			$line2 = "\nthe Xcode Command Line Tools package from\n"; 
-			$line4 = ",\nor via the Downloads tab of the Xcode Preferences";
-		}
-	}
+	# We trust that our rsync will work, so default to that if present
+	# Otherwise choose system-rsync, which hopefully hasn't been broken by
+	# an Apple update. If system-rsync is known to be broken at some point,
+	# we'll add a version check for that here.
 
-	if (not Fink::VirtPackage->query_package("dev-tools")) {
-		warn "Before changing your selfupdate method to 'rsync', you must install ".
-		     $line2.
-		     "http://connect.apple.com (after free registration)".
-		     $line4.".\n";
+	if (-x "$basepath/bin/rsync") {
+		$rsyncpath = "$basepath/bin/rsync";
+	} elsif (-x "/usr/bin/rsync") {
+		$rsyncpath= "/usr/bin/rsync";
+	} else {
+		warn "You appear to be missing /usr/bin/rsync, ".
+			 "which is part of the BSD subsystem.\n".
+			 "Before changing your selfupdate method to 'rsync', you must either:\n".
+			 "* reinstall your system (or just BSD.pkg)\n".
+			 "* or install the rsync package with 'fink install rsync'.\n";
 		return 0;
 	}
 
-    # We trust that our rsync will work, so default to that if present
-    # Otherwise choose system-rsync, which hopefully hasn't been broken by
-    # an Apple update. If system-rsync is known broken, add a version check
-    # for that here.
-    if (-x "$basepath/bin/rsync") {
-        $rsyncpath = "$basepath/bin/rsync";
-    } elsif (-x "/usr/bin/rsync") {
-        $rsyncpath= "/usr/bin/rsync";
-    } else {
-        warn "You appear to be missing /usr/bin/rsync, which is part of the BSD subsystem.\nBefore changing your selfupdate method to 'rsync', you must either:\n* reinstall your system (or just BSD.pkg)\n* or install the rsync package with 'fink install rsync'.\n";
-        return 0;
-    }
-
-	return 1;
+	# Check for devtools, since folks won't be able to build without them.
+	return $class->devtools_check('rsync',$rsyncpath);
 }
 
 =item do_direct
@@ -250,10 +233,6 @@ RSYNCAGAIN:
 =head2 Private Methods
 
 None yet.
-
-=over 4
-
-=back
 
 =cut
 

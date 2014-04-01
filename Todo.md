@@ -12,7 +12,7 @@ Minor
 Medium
 ======
 
-* replace "`fink list --help`" by a general "`fink --help [command]`" similar to how CVS does it (e.g. try "cvs -H update")
+* replace "`fink list --help`" by a general "`fink --help [command]`" similar to how CVS does it (e.g. try "`cvs -H update`")
 
 * add a mirror check utility that given some testcases will verify that all mirrors do still work
   
@@ -31,4 +31,3 @@ Major
 
 * There should be a better way than `passwd` for packages to use new user/groups. See branch UID/GID.
 
-* As much as possible of fink should work as non-root. Especially important that '`fink build`' should work, in case we ever want to use a build farm.
