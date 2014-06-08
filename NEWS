@@ -4,7 +4,7 @@ For a more comprehensive changelog of the latest experimental code, see:
 /-------------
 | TBD
 \-------------
-	
+
 	* Update Debian toolset.
 	* Selfupdate via git and svn.
 
@@ -12,12 +12,12 @@ For a more comprehensive changelog of the latest experimental code, see:
 | fink 0.37.x
 \-------------
 
-0.37.0 "Alabama Antiquarian" (2014-06-03) 
+0.37.0 "Alabama Antiquarian" (2014-06-03)
 	* First release not to support 10.6.
 	* Officially recognize OS 10.9.3.
 	* Install compiler wrappers in the .deb rather than autogenerating them.
 	* Additional fixes and enhancements.
-	
+
 /-------------
 | fink 0.36.x
 \-------------
@@ -32,19 +32,19 @@ For a more comprehensive changelog of the latest experimental code, see:
 	  use -Wno-error=unused-command-line-argument-hard-error-in-future.
 
 0.36.4 "Supplies are limited" (2014-04-06)
-	* Activate official binary distributions. 
+	* Activate official binary distributions.
 	* Official 10.9.2. support
 	* Bootstrap on 10.6 defaults to 10.6/x86_64.
 	* Tweak compiler wrappers to allow packages that pass flags that clang doesn't
 	  understand still to build with the Xcode 5.1 Command Line Tools.
 	  (-Wno-error=unused-command-line-argument-hard-error-in-future)
 	* Bugfix: fix issue with bootstrapping with no Xcode.app installed.
-	* Additional fixes  
-	  
+	* Additional fixes
+
 0.36.3.1 (2013-12-30)
 	* Bugfix: fix dpkg-lockwait and apt-get-lockwait on 10.6/i386
 	  by reverting the changes from dcf07ad27536cea139069ea3570a225bb91590b3
-	  only for that platform. 
+	  only for that platform.
 
 0.36.3 "Order now, and we'll double the offer!" (2013-12-26)
 	* Official 10.9.1 support.
@@ -81,14 +81,14 @@ For a more comprehensive changelog of the latest experimental code, see:
 	  and "fink --help" give the same output and reduces surprises. :-)
 	* Prevent package builds/installs if there is no upgrade path between the prior
 	  Distribution and the current OS.
-	* We appear to need the fixes from both 0.34.7 and 0.34.8 for hanging tar, so 
+	* We appear to need the fixes from both 0.34.7 and 0.34.8 for hanging tar, so
 	  we'll have both.
-	* For MakeMaker builds:  Override the default "g(cc|++)2-4.2" compiler option 
+	* For MakeMaker builds:  Override the default "g(cc|++)2-4.2" compiler option
 	  given by the system's Perl on 10.6 in favor of our "g(cc|++)" wrapper, since
 	  gcc-4.2 isn't present for clean Xcode 4.2 installs, and our wrapper is equivalent
 	  (and contains arch information) for Xcode 3.2.x.
 	* Validation::_min_fink_version() API change to allow more generic dependencies.
-	  Example:  Depends: fink (>= 0.32) now automatically satisfies BuildDepends 
+	  Example:  Depends: fink (>= 0.32) now automatically satisfies BuildDepends
 	  fink (>= 0.32).  Similarly, Depends: automatically satisfies RuntimeDepends.
 
 /-------------
@@ -102,18 +102,18 @@ For a more comprehensive changelog of the latest experimental code, see:
 	* Prevent package builds/installs if there is no upgrade path between the prior
 	  Distribution and the current OS.
 	* Validation::_min_fink_version() API change to allow more generic dependencies.
-	  Example:  Depends: fink (>= 0.32) now automatically satisfies BuildDepends 
+	  Example:  Depends: fink (>= 0.32) now automatically satisfies BuildDepends
 	  fink (>= 0.32).  Similarly, Depends: automatically satisfies RuntimeDepends.
 === in common with 0.35.0 ===
 	* Support OS 10.8.4.
 	* Add detection for Java-1.7.0.
-	* We appear to need the fixes from both 0.34.7 and 0.34.8 for hanging tar, so 
+	* We appear to need the fixes from both 0.34.7 and 0.34.8 for hanging tar, so
 	  we'll have both.
-	* For MakeMaker builds:  Override the default "g(cc|++)2-4.2" compiler option 
+	* For MakeMaker builds:  Override the default "g(cc|++)2-4.2" compiler option
 	  given by the system's Perl on 10.6 in favor of our "g(cc|++)" wrapper, since
 	  gcc-4.2 isn't present for clean Xcode 4.2 installs, and our wrapper is equivalent
 	  (and contains arch information) for Xcode 3.2.x.
-	
+
 0.34.8 "duct tape" (2013-05-08)
 	* More general fix to the hanging tar issue.  Thanks to Eric Gallager (cooljeanius)
 	  for suggesting and testing this option.  Thanks, also, to Murr.
@@ -142,7 +142,7 @@ For a more comprehensive changelog of the latest experimental code, see:
 	* Support 10.8.2 and 10.7.5
 	* Check permissions in working directories to make sure that fink-bld can
 	  operate.
-	
+
 0.34.3 "wall anchor" (2012-08-29)
 	* Support 10.8.1.
 	* Move Essential packages to gettext8.
@@ -191,14 +191,14 @@ For a more comprehensive changelog of the latest experimental code, see:
 	  rather than arbitrary, possibly broken, third-party ones.
 	* The only downloader which is now provided by Apple is curl, so stop
 	  checking in /usr/bin for wget, aria2, ....
-	
+
 /-------------
 | fink 0.33.x
 \-------------
 
 0.33.3 "Higgsino" (2012-07-05)
 	* Bugfix: force fink to put temporary scripts in /tmp when building as
-	  fink-bld to avoid failures under "sudo -E -s" and "su -m". 
+	  fink-bld to avoid failures under "sudo -E -s" and "su -m".
 	* Generate the MD5sums of all of the files for a package.  These are available
 	  under %p/var/lib/dpkg/info/<package>.md5sums.
 	* Suppress STDERR messages from xcodebuild for folks who insist on _not_
@@ -210,7 +210,7 @@ For a more comprehensive changelog of the latest experimental code, see:
 
 0.33.2 "sup squark" (2012-06-20)
 	* Bugfix:
-		* Use output from '/usr/libexec/java_home' to generate default 
+		* Use output from '/usr/libexec/java_home' to generate default
 		  JAVA_HOME for builds.
 		* This works on 10.5-10.7, so it's probably going to change at some
 		  point without warning. :-)
@@ -218,30 +218,30 @@ For a more comprehensive changelog of the latest experimental code, see:
 
 0.33.1 "Wino" (2012-06-12)
 	* Bug fixes:
-		* Justin Hallett discovered that 'id' from coreutils-default and 
+		* Justin Hallett discovered that 'id' from coreutils-default and
 		  /usr/bin/id behave differently, which causes the fink-bld user
 		  not to get set up properly.  Hardcoding /usr/bin/id solves this.
-		* Fixed stray diagnostic message from system SDK detection (Thanks 
+		* Fixed stray diagnostic message from system SDK detection (Thanks
 		  to Remko Scharoo for the report).
-	
+
 0.33.0 "selectron" (2012-06-11)
     * Recognize OS 10.7.4.
 	* Make fink use --build-as-nobody by default.
 		* move creation of fink-bld user, if not already present, into fink
 		  rather than passwd(-fink-bld).
 		* If not present, use 'fink configure' to set up the fink-bld user's
-		  parameters, and it will be created on the next operation where a 
+		  parameters, and it will be created on the next operation where a
 		  build could occur.
-		* BuildAsNobody: false field for .info files where the package can't be 
+		* BuildAsNobody: false field for .info files where the package can't be
 	  	  built as nobody.
-		* --no-build-as-nobody option for fink to override this default option 
+		* --no-build-as-nobody option for fink to override this default option
 	  	  and build as root.
 	* %p/Library/Python is now a legal directory.
 	* Modify the versioning of the "xcode" virtual package.
 	    * Version of the CLI Tools, if those are installed, for OS 10.7+.
 	    * Still the version of Xcode.app for Xcode 4.2.1-.
-	* "xcode.app" virtual package indicates the presence of Xcode.app, and its 
-	  version is the version of the app for all Xcode versions.  
+	* "xcode.app" virtual package indicates the presence of Xcode.app, and its
+	  version is the version of the app for all Xcode versions.
 	* Diagnostic output modifications for packages that have UseMaxBuildJobs:
 	  false.
 
@@ -264,9 +264,9 @@ For a more comprehensive changelog of the latest experimental code, see:
 		  they need to install a different Xcode or if the package is just
 		  wrong. :-)
 	* Bugfixes:
-	  	* Message concerning RuntimeDepends now mentions fink (>=0.32.0) 
+	  	* Message concerning RuntimeDepends now mentions fink (>=0.32.0)
 	  	  rather than the less user-friendly (>=0.31.99.git).
-	  	* Have a default value if no system SDKs are found to avoid 
+	  	* Have a default value if no system SDKs are found to avoid
 	  	  "unitialized value" errors.
 	  	* 0.32.5 -> 0.32.5.2: these updates didn't get applied.
 	  	* 0.32.5.2 -> 0.32.5.3:  10.7 needs gcc4.2, not gcc4.0.
@@ -296,7 +296,7 @@ For a more comprehensive changelog of the latest experimental code, see:
 	* Support OS 10.7.3.
 
 0.32.1 "penny-farthing" (2012-01-26)
-	* Bugfix: get_build_directory() needed to include tar.xz as an option or 
+	* Bugfix: get_build_directory() needed to include tar.xz as an option or
 	  packages with a simple Source: foo.tar.xz would fail.
 
 0.32.0 "recumbent" (2012-01-25)
@@ -311,12 +311,12 @@ For a more comprehensive changelog of the latest experimental code, see:
 	* Disallow bootstrapping into /usr/local and any subdir of it.
 	* Disallow bootstrapping on OS X 10.4 and older.
 	* Removed the obsolete prebinding code (it was for OS X 10.4 and older).
-	* Let 'tar' handle compressed tar files directly.  
+	* Let 'tar' handle compressed tar files directly.
 	* xz archive support.
 		* Includes validation check with 0.32 as minimum fink
 		  version for .xz formatted archives.
 		* Automatic unpacking source files in .tar.xz format.
-		* Automatically install the xz package with no need to declare a 
+		* Automatically install the xz package with no need to declare a
 		  BuildDepend when a SourceN is a .xz file.
 	* Check Xcode version in bootstrap phase before actually creating a Fink tree.
 	* Check for -I or -L pointing to the builddir or install dir in .pc files.
@@ -355,7 +355,7 @@ For a more comprehensive changelog of the latest experimental code, see:
 	* No longer enforce "BDep:fink>=0.24.12" for use of PatchFile (nothing older
 	  than that would be usable now anyway)
 	* Building with the number of threads specified by MaxBuildJobs is now
-	  default (i.e. UseMaxBuildJobs: true is the default) unless 
+	  default (i.e. UseMaxBuildJobs: true is the default) unless
 	  MaxBuildJobs: false is set.
 	* InstallScript always disables UseMaxBuildJobs.
 
@@ -706,7 +706,6 @@ Bug fixes
 /-------------
 | fink 0.15.x (see https://github.com/fink/fink/tree/branch_0_15)
 \-------------
-
 
 
 Before this, a lot of historical data is currently missing.

@@ -1,3 +1,5 @@
+## Makefile for Fink
+
 PREFIX=/sw
 ARCHITECTURE=i386
 VERSION=`cat VERSION`
@@ -8,8 +10,8 @@ all:
 	@echo    "usage: $(MAKE) <target>"
 	@echo    ""
 	@echo -e "\tbootstrap   install a fresh fink installation"
-	@echo -e "\t            PREFIX can be set, defaults to /sw"   
-	@echo -e "              ARCHITECTURE can also be set, defaults to i386"   
+	@echo -e "\t            PREFIX can be set, defaults to /sw"
+	@echo -e "              ARCHITECTURE can also be set, defaults to i386"
 	@echo -e "\tinstall     install to an existing fink installation"
 	@echo -e "\ttest        perform tests on the fink code"
 	@echo -e "\tclean       remove all extraneous files"
@@ -34,7 +36,7 @@ test: manifest_check test_setup
 
 # remove various generated files
 clean:
-	rm -f compiler_wrapper 
+	rm -f compiler_wrapper
 	rm -f compiler_wrapper-10.7
 	rm -f compiler_wrapper-10.9
 	rm -f config*

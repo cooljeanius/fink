@@ -7,7 +7,7 @@ $
 These are the installation instructions for the "source" distribution based
 on "fink-0.36.4.1" , intended for use with OS X v.10.6 and later.
 
-This document does not apply to the binary distribution 
+This document does not apply to the binary distribution
 [http://www.finkproject.org/download/index.php].
 
 There are instructions for both first time installation and upgrading from a
@@ -81,32 +81,32 @@ so, go ahead. You won't have to stop the Fink install to do that.
    [frodo:~] testuser% tar xf fink-0.36.4.1.tar.gz
    [frodo:~] testuser% cd fink-0.36.4.1
    [frodo:~/fink-0.36.4.1] testuser% ./bootstrap
-   
+
    Fink must be installed and run with superuser (root) privileges
    ...
    Choose a method: [1] 1
-   
+
    sudo /Users/testuser/fink-0.36.4.1/bootstrap .sudo '/sw'
    Password: (your normal password here)
    ...
    OK, I'll ask you some questions and update the configuration file in
    '/sw/etc/fink.conf'.
-   
+
    In what additional directory should Fink look for downloaded tarballs? [] (press return)
-   
+
    Which directory should Fink use to build packages? (If you don't know what this
    means, it is safe to leave it at its default.) [] (press return)
-   
+
    "Fink can set the UID and GID of its build user dynamically...
    ...Allow Fink to set the UID/GID dynamically? [Y] (press return)
-   
+
    (1)	Quiet (do not show download statistics)
    (2)	Low (do not show tarballs being expanded)
    (3)	Medium (will show almost everything)
    (4)	High (will show everything)
-   
+
    How verbose should Fink be? [2] (press return)
-   
+
    Proxy/Firewall settings
    Enter the URL of the HTTP proxy to use, or 'none' for no proxy. The URL
    should start with http:// and may contain username, password or port
@@ -115,11 +115,11 @@ so, go ahead. You won't have to stop the Fink install to do that.
    should start with http:// and may contain username, password or port
    specifications. [none] (press return)
    Use passive mode FTP transfers (to get through a firewall)? [Y/n] (press return)
-   
+
    Enter the maximum number of simultaneous build jobs.
    ...
    Maximum number of simultaneous build jobs: [<number of cpus>] (press return)
-   
+
    Mirror selection
    Choose a continent:
    ...
@@ -130,7 +130,7 @@ so, go ahead. You won't have to stop the Fink install to do that.
    ...
    (take a coffee break while Fink downloads and compiles the base packages)
    ...
-   
+
    You should now have a working Fink installation in '/sw'.
    [frodo:~/fink-0.36.4.1] testuser% cd
    [frodo:~] testuser% rm -r fink-0.36.4.1
@@ -166,22 +166,22 @@ descriptions. To do this, in your new Terminal.app window, ether use:
 
    [frodo:~] testuser% fink selfupdate-cvs
    Password: (your normal password here)
-   
+
    Please note: the simple command 'fink selfupdate' should be used for routine
    updating; you only need to use a command like 'fink selfupdate-cvs' or 'fink
-   selfupdate --method=rsync' if you are changing your update method. 
-   
+   selfupdate --method=rsync' if you are changing your update method.
+
    fink is setting your default update method to cvs
-   
+
    Fink has the capability to run the CVS commands as a normal user. That has some
    advantages - it uses that user's CVS settings files and allows the package
    descriptions to be edited and updated without becoming root. Please specify the
    user login name that should be used: [<your username>] (press return)
-   
+
    For Fink developers only: Enter your SourceForge login name to set up full CVS
    access. Other users, just press return to set up anonymous read-only access.
    [anonymous] (press return)
-   
+
    Checking to see if we can use hard links to merge the existing tree. Please
    ignore errors on the next few lines.
    Now logging into the CVS server. When CVS asks you for a password, just press
@@ -197,7 +197,7 @@ especially if you are using a proxy.
 
 If you are using Xcode 4.3 or later, you should also run
 
-   
+
    sudo xcodebuild -license
 
 and enter agree so that Fink's unprivileged user can build packages that
@@ -209,14 +209,14 @@ You can now install packages with the "fink" command, like this:
    Password:
    Scanning package description files..........
    Information about 6230 packages read in 1 seconds.
-   
+
    fink needs help picking an alternative to satisfy a virtual dependency. The
    candidates:
-   
+
    (1)	db51-aes: Berkeley DB embedded database - crypto
    (2)	db51: Berkeley DB embedded database - non crypto
-   
-   Pick one: [1] 
+
+   Pick one: [1]
    The following package will be installed or updated:
     gimp2
    The following 308 additional packages will be installed:
@@ -427,7 +427,7 @@ anonymous cvs (pserver) through a proxy.
 
 If you are using Xcode 4.3 or later, you should also run
 
-   
+
    sudo xcodebuild -license
 
 and enter agree so that Fink's unprivileged user can build packages that
@@ -567,8 +567,8 @@ you backed up into "/sw/src" either using the Finder or the command line:
  (As usual, replace "/sw" with your Fink tree). If you prefer, you can use
 "fink configure" to specify your backup location:
 
-   In what additional directory should Fink look for downloaded tarballs? [] 
-   (enter your backup directory at the prompt). 
+   In what additional directory should Fink look for downloaded tarballs? []
+   (enter your backup directory at the prompt).
 
  Note: this requires that the entire path to and including your backup
 directory is world-readable.
@@ -577,6 +577,5 @@ directory is world-readable.
 recommend that you not restore "/sw/etc/fink.conf" from your prior
 installation of Fink, to avoid incompatibilities. You can open it up in a
 text editor and enter the correponding values into "fink configure" .
-
 
 EOF.

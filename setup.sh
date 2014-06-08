@@ -53,7 +53,7 @@ if [ $osMajorVer -gt 12 ]; then
   perlexe="/usr/bin/arch -arch $architecture /usr/bin/perl5.16"
 fi
 
-echo "Creating $fink..." 
+echo "Creating $fink..."
 sed -e "s|@BASEPATH@|$basepath|g" -e "s|@PERLEXE@|$perlexe|g" < fink.in > fink
 
 for bin in fink-{virtual-pkgs,instscripts,scanpackages}; do
@@ -97,7 +97,7 @@ sed "s|@PREFIX@|$basepath|g" <fink-dpkg-status-cleanup.in >fink-dpkg-status-clea
 if [ "$architecture" = "x86_64" ]; then
 	packargs='"qqiss", 0, 0'
 else
-	packargs='"lllliss", (0, 0), (0, 0)'	
+	packargs='"lllliss", (0, 0), (0, 0)'
 fi
 
 echo "Creating lockwait wrappers..."
@@ -120,3 +120,4 @@ sed -e "s|@PREFIX@|$basepath|g" < compiler_wrapper-10.7.in >"compiler_wrapper-10
 sed -e "s|@PREFIX@|$basepeath|g" < compiler_wrapper-10.9.in >"compiler_wrapper-10.9"
 
 exit 0
+

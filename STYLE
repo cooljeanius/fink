@@ -9,12 +9,12 @@ Date: Sun, 16 Nov 2003 14:05:12 +0100
 [...] Here's them, roughly:
 
 * tabs are 4 wide
-* use tabs for indention of statements (so with the above, you get "4 
+* use tabs for indention of statements (so with the above, you get "4
 character indention")
 * in particular, do *not* use emacs 2/8 indention mode
 * don't use tabs for indention/alignment *inside* statements.
-* there is no particular reason to stick to a 80 column width, but if 
-it makes you feel better, I don't mind it either, as long as it doesn't 
+* there is no particular reason to stick to a 80 column width, but if
+it makes you feel better, I don't mind it either, as long as it doesn't
 cause extremely unnatural code formatting
 * our bracing style is:
    while (foo) {
@@ -82,5 +82,5 @@ These have not yet been checked for cycles:
   Fink::SelfUpdate::CVS uses Fink::SelfUpdate::Base Fink::CLI Fink::Config Fink::Package Fink::Command Fink::Services
   Fink::SelfUpdate::point uses Fink::SelfUpdate::Base Fink::CLI Fink::Config Fink::NetAccess Fink::Command Fink::Services
   Fink::SelfUpdate::rsync uses Fink::SelfUpdate::Base Fink::CLI Fink::Config Fink::Mirror Fink::Package Fink::Command Fink::Services
-  Fink::Shlibs uses Fink::Base Fink::Services Fink::CLI Fink::Config Fink::PkgVersion 
+  Fink::Shlibs uses Fink::Base Fink::Services Fink::CLI Fink::Config Fink::PkgVersion
 

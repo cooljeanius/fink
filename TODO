@@ -14,12 +14,12 @@ Minor
 Medium
 ======
 
-* replace "fink list --help" by a general "fink --help [command]" similiar to 
+* replace "fink list --help" by a general "fink --help [command]" similiar to
   how CVS does it (e.g. try "cvs -H update")
 
 * add a mirror check utillity that given some testcases will verify that all mirrors
   do still work
-  
+
 * when Fink asks a user to choose between alternatives, it should remember the
 choice. (But will this ever break building?)
 
@@ -40,3 +40,4 @@ happen in the background.
 
 * there should be a better way than passwd for packages to use new user/groups.
 See branch UID/GID.
+

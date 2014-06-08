@@ -44,10 +44,10 @@ if ($> != 0) {
     exit &execute($cmd,quiet=>1);
 }
 
-### create FinkVersion.pm from FinkVersion.pm.in (we don't care about the
+### create FinkVersion.pm from FinkVersion.pm.in (we do NOT care about the
 ### @ARCHITECTURE@ and @VERSION@ strings, because this copy of Fink is just
 ### here for the purpose of running the inject_packages() script, which
-### doesn't need that information)
+### does NOT need that information)
 
 my $output = "$FindBin::RealBin/perlmod/Fink/FinkVersion.pm";
 my $input = $output . '.in';
@@ -60,7 +60,7 @@ require Fink::Bootstrap;
 
 my $package = "fink";
 
-### check if we're unharmed, and specify files for tarball
+### check if we are or were unharmed, and specify files for tarball
 
 import Fink::Bootstrap qw(&check_files &fink_packagefiles);
 
@@ -73,7 +73,7 @@ my $packagefiles = fink_packagefiles();
 
 my $info_script = "";
 
-# quit immediately if pod2man isn't executable, to avoid folks nearly building
+# quit immediately if pod2man is NOT executable, to avoid folks nearly building
 ### fink and then having it crap out.
 system "./pre-build-test.sh" and exit 1;
 
@@ -90,6 +90,4 @@ if ($result == 1) {
 
 ### eof
 exit 0;
-
-
 

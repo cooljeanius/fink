@@ -47,7 +47,7 @@ dependencies automatically, but will ask you for confirmation before it does
 so. Example:
 
    fink install nedit
-   
+
    Reading package info...
    Information about 131 packages read.
    The following additional package will be installed:

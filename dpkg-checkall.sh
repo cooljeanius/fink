@@ -4,7 +4,7 @@
 #                     is installed, is actually installed.  Outputs a
 #                     list of packages with problems.
 #
-#                     Script written by Alexander Strange, enhanced by Martin Costabel.
+#     Script written by Alexander Strange, enhanced by Martin Costabel.
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
@@ -31,12 +31,12 @@ echo " "
 for FILELIST in $fink_path/var/lib/dpkg/info/*.list
 do
   PACKAGE=`basename $FILELIST .list`
-# trick to allow for spaces in file names: remove them from IFS 
+# trick to allow for spaces in file names: remove them from IFS
 IFS="
 "
 for FILE in `cat $FILELIST`
   do
-    if ! test -e "$FILE" 
+    if ! test -e "$FILE"
     then
         NONE=0
         echo $PACKAGE "-" $FILE

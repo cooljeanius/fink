@@ -109,7 +109,7 @@ done
 for gccvers in 3.3 4.0; do
 	install -c -p -m 755 "g++-wrapper-$gccvers" \
 		"$basepath/var/lib/fink/path-prefix-g++-$gccvers/g++"
-	ln -s -n -f g++ "$basepath/var/lib/fink/path-prefix-g++-$gccvers/c++" 
+	ln -s -n -f g++ "$basepath/var/lib/fink/path-prefix-g++-$gccvers/c++"
 done
 
 install -c -p -m 755 "compiler_wrapper" \
@@ -190,3 +190,4 @@ done
 
 echo "Done."
 exit 0
+
