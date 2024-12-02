@@ -4,7 +4,7 @@
 #
 # Fink - a package manager that downloads source and installs it
 # Copyright (c) 2001 Christoph Pfisterer
-# Copyright (c) 2001-2023 The Fink Package Manager Team
+# Copyright (c) 2001-2024 The Fink Package Manager Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -296,7 +296,7 @@ GCC_MSG
 			"of macOS might work with Fink, but there are no " .
 			"guarantees.");
 		$distribution = "13.0";
-	} elsif ($host =~ /^(aarch64|x86_64)-apple-darwin23\.[0-4]/) {
+	} elsif ($host =~ /^(aarch64|x86_64)-apple-darwin23\.[0-5]/) {
 		&print_breaking("This system is supported and tested.");
 		$distribution = "14.0";
 	} elsif ($host =~ /^(aarch64|x86_64)-apple-darwin23\./) {
@@ -305,6 +305,12 @@ GCC_MSG
 			"of macOS might work with Fink, but there are no " .
 			"guarantees.");
 		$distribution = "14.0";
+	} elsif ($host =~ /^(aarch64|x86_64)-apple-darwin24\./) {
+		&print_breaking("This system was not released at the time " .
+			"this Fink release was made.  Prerelease versions " .
+			"of macOS might work with Fink, but there are no " .
+			"guarantees.");
+		$distribution = "15.0";
 	} else {
 		&print_breaking("This system is unrecognized and not ".
 			"supported by Fink.");
@@ -329,7 +335,6 @@ Returns 0 on success, 1 on failure.
 =cut
 
 sub inject_package {
-
 	Fink::Services->import(qw(&read_config));
 	require Fink::Config;
 
@@ -392,7 +397,9 @@ sub inject_package {
 	print "Installing package...\n";
 	print "\n";
 
-	if (&execute("$bpath/bin/fink install $package-$packageversion-$packagerevision")) {
+	# force /usr/bin/perl incase we are injecting a new osx version where
+	# perl version changed
+	if (&execute("/usr/bin/perl $bpath/bin/fink install $package-$packageversion-$packagerevision")) {
 		print "\n";
 		&print_breaking("Installing the new $package package failed. ".
 		  "The description and the tarball were installed, though. ".
@@ -514,6 +521,7 @@ sub is_perl_supported {
 	} elsif ("$]" == "5.028002") {
 	} elsif ("$]" == "5.030002") {
 	} elsif ("$]" == "5.030003") {
+	} elsif ("$]" == "5.034001") {
 	} else {
 		# unsupported version of perl
 		return 0;
@@ -1151,6 +1159,7 @@ sub get_selfupdatetrees {
 		"12.0" => "10.9-libcxx",
 		"13.0" => "10.9-libcxx",
 		"14.0" => "10.9-libcxx",
+		"15.0" => "10.9-libcxx",
 		);
 
 	return $selfupdatetrees{$distribution};
