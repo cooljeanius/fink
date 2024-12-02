@@ -5557,7 +5557,7 @@ sub get_env {
 	}
 
 	# special case for LDFLAGS to always have headerpad_max_install_names
-	$script_env{'LDFLAGS'} = $script_env{'LDFLAGS'} . " -Wl,-headerpad_max_install_names";
+	$script_env{'LDFLAGS'} = (defined $script_env{'LDFLAGS'} ? $script_env{'LDFLAGS'} : "") . " -Wl,-headerpad_max_install_names";
 
 	# If UseMaxBuildJobs is absent or set to True, turn on MaxBuildJobs
 	# (unless phase is 'installing')
@@ -5836,9 +5836,13 @@ sub get_perl_dir_arch {
 				# interpreter is /usr/bin/perl5.30 (not perl5.30.2)
 				$perlcmd = "/usr/bin/arch -%m perl5.30";
 			} elsif ((&version_cmp($perlversion, '=', "5.30.3")) and Fink::Services::get_kernel_vers() >= '21') {
-				# 12.0/13.0 system-perl is 5.30.3, but the only supplied
+				# 12.0/13.0/14.0 system-perl is 5.30.3, but the only supplied
 				# interpreter is /usr/bin/perl5.30 (not perl5.30.3)
 				$perlcmd = "/usr/bin/arch -%m perl5.30";
+			} elsif ((&version_cmp($perlversion, '=', "5.34.1")) and Fink::Services::get_kernel_vers() >= '23') {
+				# 14.x/15.0 system-perl is 5.34.1, but the only supplied
+				# interpreter is /usr/bin/perl5.34 (not perl5.34.1)
+				$perlcmd = "/usr/bin/arch -%m perl5.34";
 			}
 		} else {
 			$perlcmd = get_path('perl'.$perlversion);
